@@ -1,0 +1,10 @@
+name: stockfish-homonym
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - cmake
+  - pip
+  - pip:
+      - -e ../amago
+      - -e .

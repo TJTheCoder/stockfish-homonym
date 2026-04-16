@@ -1,0 +1,1 @@
+"""Baseline trading agents."""

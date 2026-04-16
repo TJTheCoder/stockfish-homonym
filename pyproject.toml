@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stockfish-homonym"
+version = "0.1.0"
+description = "AMAGO-based RL agent for the stock-trading-platform sister repo"
+requires-python = ">=3.10"
+dependencies = [
+  "gymnasium>=0.26,<=0.29.1",
+  "numpy>=1.21,<3",
+  "pyyaml>=6.0",
+]
+
+[project.scripts]
+stockfish-train = "stockfish_homonym.train.amago_train:main"
+stockfish-eval = "stockfish_homonym.eval.run_eval:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
