@@ -10,7 +10,7 @@ from typing import Optional, Iterable
 
 import numpy as np
 
-from amago import utils
+from stockfish_homonym.learning import utils
 
 
 @dataclass
@@ -182,7 +182,7 @@ class FrozenTraj:
 class Trajectory:
     """A sequence of timesteps.
 
-    Stores a rollout and handles disk saves when using the default :py:class:`~amago.loading.RLDataset`.
+    Stores a rollout and handles disk saves when using the default :py:class:`~stockfish_homonym.learning.loading.RLDataset`.
 
     Args:
         timesteps: Iterable of :py:class:`Timestep` objects.
@@ -294,7 +294,7 @@ class Trajectory:
 class Relabeler(ABC):
     """A hook for modifying trajectory data during training.
 
-    In the default :py:class:`~amago.loading.DiskTrajDataset`, Relabeler has the chance to edit input trajectories
+    In the default :py:class:`~stockfish_homonym.learning.loading.DiskTrajDataset`, Relabeler has the chance to edit input trajectories
     before they are passed to an agent for training. Enables Hindsight Experience Replay
     (HER) and variants. See examples/13_mazerunner_relabeling.py for an implementation.
     """

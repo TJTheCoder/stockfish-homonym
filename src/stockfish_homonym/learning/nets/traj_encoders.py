@@ -10,8 +10,8 @@ from torch import nn
 import numpy as np
 import gin
 
-from amago.nets import ff, transformer, utils
-from amago.utils import amago_warning
+from stockfish_homonym.learning.nets import ff, transformer, utils
+from stockfish_homonym.learning.utils import learning_warning
 
 
 ##############################
@@ -577,7 +577,7 @@ class MambaTrajEncoder(TrajEncoder):
 
         assert (
             Mamba is not None
-        ), "Missing Mamba installation (pip install amago[mamba])"
+        ), "Missing Mamba installation."
         self.inp = nn.Linear(tstep_dim, d_model)
 
         self.mambas = nn.ModuleList(

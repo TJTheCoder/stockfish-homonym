@@ -1,1 +1,1 @@
-"""AMAGO training entrypoints and shared helpers."""
+"""Training entrypoints and shared helpers."""

@@ -23,8 +23,8 @@ from .env_utils import (
     space_convert,
 )
 from .exploration import ExplorationWrapper
-from amago.hindsight import Timestep, Trajectory, split_batched_timestep
-from amago.loading import get_path_to_trajs
+from stockfish_homonym.learning.hindsight import Timestep, Trajectory, split_batched_timestep
+from stockfish_homonym.learning.loading import get_path_to_trajs
 
 
 class AMAGOEnv(gym.Wrapper):
@@ -198,7 +198,7 @@ class SequenceWrapper(gym.Wrapper):
     Automatically logs total return in all envs.
 
     We also log any metric from the gym env's `info` dict that begins with "AMAGO_LOG_METRIC"
-    (`amago.envs.env_utils.AMAGO_ENV_LOG_PREFIX`).
+    (`stockfish_homonym.learning.envs.env_utils.AMAGO_ENV_LOG_PREFIX`).
 
     Args:
         env: The `AMAGOEnv` to wrap.

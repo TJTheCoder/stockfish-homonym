@@ -1,7 +1,7 @@
 from importlib.metadata import version, PackageNotFoundError
 
 try:
-    __version__ = version("amago")
+    __version__ = version("stockfish-homonym")
 except PackageNotFoundError:
     __version__ = "unknown"
 

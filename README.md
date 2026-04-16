@@ -34,7 +34,7 @@ stockfish-train \
 Evaluate a saved checkpoint against the built-in TWAP baseline with:
 
 ```bash
-stockfish-eval --checkpoint artifacts/amago_cpp_platform/ckpts/latest/policy.pt
+stockfish-eval --checkpoint artifacts/stockfish_platform/ckpts/latest/policy.pt
 ```
 
 You can also point that command at one of the numbered files in `ckpts/policy_weights/`.

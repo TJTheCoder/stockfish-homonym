@@ -12,11 +12,11 @@ from stockfish_homonym.env.platform_execution_env import PlatformEnvConfig, Plat
 from stockfish_homonym.eval.evaluator import EvalMetrics, Evaluator
 from stockfish_homonym.train.common import build_experiment, load_config
 
-from amago.envs import AMAGOEnv, SequenceWrapper
+from stockfish_homonym.learning.envs import SequenceEnv, SequenceWrapper
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Evaluate a saved AMAGO checkpoint.")
+    parser = argparse.ArgumentParser(description="Evaluate a saved checkpoint.")
     parser.add_argument(
         "--config",
         type=str,
@@ -30,7 +30,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def evaluate_amago_policy(
+def evaluate_policy(
     experiment,
     env_config: PlatformEnvConfig,
     episodes: int,
@@ -48,7 +48,7 @@ def evaluate_amago_policy(
     for episode in range(episodes):
         seed = seed_offset + episode
         env = SequenceWrapper(
-            AMAGOEnv(
+            SequenceEnv(
                 PlatformExecutionEnv(seed=seed, config=replace(env_config, calm_only_episodes=0)),
                 env_name="cpp_stock_platform_execution",
             ),
@@ -153,20 +153,20 @@ def main() -> None:
         n_episodes=episodes,
         seed_offset=seed_offset,
     ).evaluate(PlatformTwapAgent(env_cfg.target_inventory, env_cfg.horizon))
-    amago_metrics = evaluate_amago_policy(
+    policy_metrics = evaluate_policy(
         experiment=experiment,
         env_config=env_cfg,
         episodes=episodes,
         seed_offset=seed_offset,
     )
 
-    print(format_metrics("AMAGO policy", amago_metrics))
+    print(format_metrics("Learned policy", policy_metrics))
     print()
     print(format_metrics("TWAP baseline", twap_metrics))
     print()
-    delta = twap_metrics.shortfall_mean - amago_metrics.shortfall_mean
+    delta = twap_metrics.shortfall_mean - policy_metrics.shortfall_mean
     verdict = "better" if delta > 0 else "worse"
-    print(f"AMAGO vs TWAP: {delta:+.4f} ({verdict} than TWAP)")
+    print(f"Policy vs TWAP: {delta:+.4f} ({verdict} than TWAP)")
 
 
 if __name__ == "__main__":

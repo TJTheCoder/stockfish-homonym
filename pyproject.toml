@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-stockfish-train = "stockfish_homonym.train.amago_train:main"
+stockfish-train = "stockfish_homonym.train.train_policy:main"
 stockfish-eval = "stockfish_homonym.eval.run_eval:main"
 
 [tool.setuptools.packages.find]

@@ -6,7 +6,7 @@ from stockfish_homonym.train.common import build_experiment, load_config
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train an AMAGO agent on the C++ stock platform.")
+    parser = argparse.ArgumentParser(description="Train the stock execution policy.")
     parser.add_argument(
         "--config",
         type=str,

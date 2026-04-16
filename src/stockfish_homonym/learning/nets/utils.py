@@ -9,7 +9,7 @@ from torch import nn
 from torch.nn import functional as F
 import gin
 
-from amago.loading import MAGIC_PAD_VAL
+from stockfish_homonym.learning.loading import MAGIC_PAD_VAL
 
 
 def symlog(x: torch.Tensor | float) -> torch.Tensor | float:

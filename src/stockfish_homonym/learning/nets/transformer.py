@@ -14,8 +14,8 @@ from einops import repeat, rearrange, einsum
 import gin
 
 from .utils import activation_switch
-from amago.utils import amago_warning
-from amago.nets.ff import Normalization
+from stockfish_homonym.learning.utils import learning_warning
+from stockfish_homonym.learning.nets.ff import Normalization
 
 # Flex Attention
 try:
@@ -32,7 +32,7 @@ try:
     import flash_attn
     from flash_attn import flash_attn_qkvpacked_func, flash_attn_with_kvcache
 except ImportError:
-    amago_warning("Missing FlashAttention (2.0) Install")
+    learning_warning("FlashAttention 2 is not installed.")
     flash_attn = None
 else:
     torch.set_float32_matmul_precision("high")
@@ -161,7 +161,7 @@ class FlashAttention(SelfAttention):
     ):
         assert (
             flash_attn is not None
-        ), "Missing flash attention 2 install (pip install amago[flash])."
+        ), "Missing FlashAttention 2 install."
         super().__init__(causal=causal, dropout=dropout)
         self.window_size = window_size
 
@@ -222,7 +222,7 @@ class FlexAttention(SelfAttention):
     ):
         assert flex_attention is not None, "FlexAttention requires pytorch >= 2.5"
         if dropout > 0.0:
-            amago_warning(
+            learning_warning(
                 "FlexAttention does not support attention dropout. Setting to 0."
             )
         super().__init__(causal=causal, dropout=0.0)

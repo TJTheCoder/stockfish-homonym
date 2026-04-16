@@ -9,7 +9,7 @@ env:
   calm_only_episodes: 200
 
 training:
-  run_name: amago_cpp_platform
+  run_name: stockfish_platform
   buffer_dir: artifacts
   epochs: 300
   parallel_actors: 4

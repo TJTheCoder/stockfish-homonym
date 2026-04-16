@@ -17,14 +17,14 @@ from einops import repeat, rearrange
 from einops.layers.torch import EinMix as Mix
 import gin
 
-from amago.nets.ff import MLP, Normalization
-from amago.nets.utils import activation_switch, symlog, symexp
-from amago.nets.policy_dists import (
+from stockfish_homonym.learning.nets.ff import MLP, Normalization
+from stockfish_homonym.learning.nets.utils import activation_switch, symlog, symexp
+from stockfish_homonym.learning.nets.policy_dists import (
     Discrete,
     PolicyOutput,
     TanhGaussian,
 )
-from amago.utils import amago_warning
+from stockfish_homonym.learning.utils import learning_warning
 
 
 class BaseActorHead(nn.Module, ABC):
@@ -104,7 +104,7 @@ class Actor(BaseActorHead):
         activation: Activation function to use in the MLP. Defaults to "leaky_relu".
         dropout_p: Dropout rate to use in the MLP. Defaults to 0.0.
         continuous_dist_type: Type of continuous distribution to use if applicable. Must be a
-            :py:class:`~amago.nets.policy_dists.PolicyOutput`. Defaults to :py:class:`~amago.nets.policy_dists.TanhGaussian`.
+            :py:class:`~stockfish_homonym.learning.nets.policy_dists.PolicyOutput`. Defaults to :py:class:`~stockfish_homonym.learning.nets.policy_dists.TanhGaussian`.
     """
 
     def __init__(
@@ -172,7 +172,7 @@ class ResidualActor(BaseActorHead):
         normalization: Normalization to use in the residual blocks. Defaults to "layer" (LayerNorm).
         dropout_p: Dropout rate to use in the initial linear layers. Defaults to 0.0.
         continuous_dist_type: Type of continuous distribution to use if applicable. Must be a
-            :py:class:`~amago.nets.policy_dists.PolicyOutput`. Defaults to :py:class:`~amago.nets.policy_dists.TanhGaussian`.
+            :py:class:`~stockfish_homonym.learning.nets.policy_dists.PolicyOutput`. Defaults to :py:class:`~stockfish_homonym.learning.nets.policy_dists.TanhGaussian`.
     """
 
     def __init__(
@@ -509,8 +509,8 @@ class NCriticsTwoHot(BaseCriticHead):
         out_dim = output_bins
         self.num_bins = output_bins
         if min_return is None or max_return is None:
-            amago_warning(
-                "amago.nets.actor_critic.NCriticsTwoHot.min_return/max_return have not been set manually, and default to extreme values."
+            learning_warning(
+                "stockfish_homonym.learning.nets.actor_critic.NCriticsTwoHot.min_return/max_return have not been set manually, and default to extreme values."
             )
         min_return = min_return if min_return is not None else -100_000
         max_return = max_return if max_return is not None else 100_000
@@ -549,7 +549,7 @@ class NCriticsTwoHot(BaseCriticHead):
             )
             edge_margin = min(init_bin_idx, output_bins - 1 - init_bin_idx)
             if edge_margin < 12:
-                amago_warning(
+                learning_warning(
                     f"init_value={init_value} is only {edge_margin} bins from the edge "
                     f"of the support. The initialization Gaussian may be truncated, "
                     f"slightly biasing the initial prediction inward. Consider widening "

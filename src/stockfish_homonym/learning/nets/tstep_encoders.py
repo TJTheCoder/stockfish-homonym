@@ -11,8 +11,8 @@ import gin
 import torch
 from torch import nn
 
-from amago.nets.utils import InputNorm, add_activation_log, symlog, activation_switch
-from amago.nets import ff, cnn
+from stockfish_homonym.learning.nets.utils import InputNorm, add_activation_log, symlog, activation_switch
+from stockfish_homonym.learning.nets import ff, cnn
 
 
 ###############################

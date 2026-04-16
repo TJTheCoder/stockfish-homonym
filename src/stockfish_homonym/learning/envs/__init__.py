@@ -16,4 +16,5 @@ from .exploration import (
     get_exploration_cls,
     list_registered_explorations,
 )
-from . import builtin
+
+SequenceEnv = AMAGOEnv

@@ -11,7 +11,7 @@ from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from amago.nets.utils import activation_switch
+from stockfish_homonym.learning.nets.utils import activation_switch
 
 
 def weight_init(m):
@@ -34,7 +34,7 @@ class CNN(nn.Module, ABC):
         img_shape: Shape of the image (H, W, C) or (C, H, W).
         channels_first: Whether the image is in channels-first format.
         activation: Activation function to use. See
-            `amago.nets.utils.activation_switch`.
+            `stockfish_homonym.learning.nets.utils.activation_switch`.
     """
 
     def __init__(
@@ -163,7 +163,7 @@ class DrQCNN(CNN):
         img_shape: Shape of the image (H, W, C) or (C, H, W).
         channels_first: Whether the image is in channels-first format.
         activation: Activation function to use. See
-            `amago.nets.utils.activation_switch`.
+            `stockfish_homonym.learning.nets.utils.activation_switch`.
     """
 
     def __init__(self, img_shape: tuple[int], channels_first: bool, activation: str):
@@ -193,7 +193,7 @@ class GridworldCNN(CNN):
         img_shape: Shape of the image (H, W, C) or (C, H, W).
         channels_first: Whether the image is in channels-first format.
         activation: Activation function to use. See
-            `amago.nets.utils.activation_switch`.
+            `stockfish_homonym.learning.nets.utils.activation_switch`.
 
     Keyword Args:
         channels: List of 3 ints representing the number of output channels for
@@ -242,7 +242,7 @@ class NatureishCNN(CNN):
         img_shape: Shape of the image (H, W, C) or (C, H, W).
         channels_first: Whether the image is in channels-first format.
         activation: Activation function to use. See
-            `amago.nets.utils.activation_switch`.
+            `stockfish_homonym.learning.nets.utils.activation_switch`.
 
     Keyword Args:
         channels: List of 3 ints representing the number of output channels for
@@ -293,7 +293,7 @@ class IMPALAishCNN(CNN):
         img_shape: Shape of the image (H, W, C) or (C, H, W).
         channels_first: Whether the image is in channels-first format.
         activation: Activation function to use. See
-            `amago.nets.utils.activation_switch`.
+            `stockfish_homonym.learning.nets.utils.activation_switch`.
 
     Keyword Args:
         cnn_block_depths: List of ints representing the number of output

@@ -12,16 +12,16 @@ from typing import Optional
 import gin
 import wandb
 
-import amago
-from amago import TrajEncoder, TstepEncoder, Agent
-from amago.agent import get_agent_cls, list_registered_agents
-from amago.nets.traj_encoders import get_traj_encoder_cls, list_registered_traj_encoders
-from amago.nets.tstep_encoders import (
+import stockfish_homonym.learning as learning
+from stockfish_homonym.learning import TrajEncoder, TstepEncoder, Agent
+from stockfish_homonym.learning.agent import get_agent_cls, list_registered_agents
+from stockfish_homonym.learning.nets.traj_encoders import get_traj_encoder_cls, list_registered_traj_encoders
+from stockfish_homonym.learning.nets.tstep_encoders import (
     get_tstep_encoder_cls,
     list_registered_tstep_encoders,
 )
-from amago.loading import DiskTrajDataset, RLDataset
-from amago.envs.exploration import (
+from stockfish_homonym.learning.loading import DiskTrajDataset, RLDataset
+from stockfish_homonym.learning.envs.exploration import (
     ExplorationWrapper,
     EpsilonGreedy,
     BilevelEpsilonGreedy,
@@ -67,7 +67,7 @@ def add_common_cli(parser: ArgumentParser) -> ArgumentParser:
         type=str,
         default="agent",
         choices=_LazyChoices(list_registered_agents),
-        help="Quick switch between registered Agent types. See `amago.agent.list_registered_agents()` for options. MultiTaskAgent is useful when training on mixed environments with multiple reward functions.",
+        help="Quick switch between registered Agent types. See `stockfish_homonym.learning.agent.list_registered_agents()` for options. MultiTaskAgent is useful when training on mixed environments with multiple reward functions.",
     )
     parser.add_argument(
         "--env_mode",
@@ -104,7 +104,7 @@ def add_common_cli(parser: ArgumentParser) -> ArgumentParser:
         "--traj_encoder",
         choices=_LazyChoices(list_registered_traj_encoders),
         default="transformer",
-        help="Quick switch between registered TrajEncoders. See `amago.nets.traj_encoders.list_registered_traj_encoders()` for options. (ff == feedforward/memory-free)",
+        help="Quick switch between registered TrajEncoders. See `stockfish_homonym.learning.nets.traj_encoders.list_registered_traj_encoders()` for options. (ff == feedforward/memory-free)",
     )
     parser.add_argument(
         "--memory_size",
@@ -196,7 +196,7 @@ def switch_tstep_encoder(config: dict, arch: str, **kwargs) -> type[TstepEncoder
     Args:
         config: A dictionary of gin parameters yet to be assigned.
         arch: A shortcut name for a registered TstepEncoder (e.g., "ff", "cnn").
-            See `amago.nets.tstep_encoders.list_registered_tstep_encoders()` for options.
+            See `stockfish_homonym.learning.nets.tstep_encoders.list_registered_tstep_encoders()` for options.
         **kwargs: Assign any of the chosen TstepEncoder's default kwargs.
 
     Returns:
@@ -230,7 +230,7 @@ def switch_agent(config: dict, agent: str, **kwargs) -> type[Agent]:
     Args:
         config: A dictionary of gin parameters yet to be assigned.
         agent: A shortcut name for a registered Agent (e.g., "agent", "multitask").
-            See `amago.agent.list_registered_agents()` for available options.
+            See `stockfish_homonym.learning.agent.list_registered_agents()` for available options.
         **kwargs: Assign any of the chosen Agent's default kwargs.
 
     Returns:
@@ -253,7 +253,7 @@ def switch_exploration(
     Args:
         config: A dictionary of gin parameters yet to be assigned.
         strategy: A shortcut name for a registered ExplorationWrapper (e.g., "egreedy", "bilevel").
-            See `amago.envs.exploration.list_registered_explorations()` for options.
+            See `stockfish_homonym.learning.envs.exploration.list_registered_explorations()` for options.
         **kwargs: Assign any of the chosen ExplorationWrapper's default kwargs.
 
     Returns:
@@ -275,7 +275,7 @@ def switch_traj_encoder(
     Args:
         config: A dictionary of gin parameters yet to be assigned.
         arch: A shortcut name for a registered TrajEncoder (e.g., "ff", "rnn", "transformer", "mamba").
-            See `amago.nets.traj_encoders.list_registered_traj_encoders()` for options.
+            See `stockfish_homonym.learning.nets.traj_encoders.list_registered_traj_encoders()` for options.
         memory_size: Sets the same conceptual state space dimension across the
             various architectures. For example, the size of the hidden state in an
             RNN or d_model in a Transformer.
@@ -366,13 +366,13 @@ def create_experiment_from_cli(
     traj_encoder_type: type[TrajEncoder],
     traj_save_len: Optional[int] = None,
     exploration_wrapper_type: type[ExplorationWrapper] = EpsilonGreedy,
-    experiment_type: type[amago.Experiment] = amago.Experiment,
+    experiment_type: type[learning.Experiment] = learning.Experiment,
     dataset: Optional[RLDataset] = None,
     **extra_experiment_kwargs,
-) -> amago.Experiment:
+) -> learning.Experiment:
     """
     A convenience function that assigns Experiment kwargs from
-    :py:func:`~amago.cli_utils.add_common_cli()` options.
+    :py:func:`~stockfish_homonym.learning.cli_utils.add_common_cli()` options.
 
     Args:
         command_line_args: The parsed command line arguments created by
@@ -393,7 +393,7 @@ def create_experiment_from_cli(
         exploration_wrapper_type: The type of exploration wrapper to use. Can be the
             output of `cli_utils.switch_exploration()`, but defaults to
             `EpsilonGreedy`.
-        experiment_type: The type of experiment to use. Defaults to `amago.Experiment`.
+        experiment_type: The type of experiment to use. Defaults to `stockfish_homonym.learning.Experiment`.
         dataset: An optional dataset to use. If not provided, we create a
             `DiskTrajDataset` (an online RL replay buffer on disk) in the same
             directory where the CLI tells us it will save checkpoints
@@ -449,7 +449,7 @@ def create_experiment_from_cli(
     return experiment
 
 
-def make_experiment_learn_only(experiment: amago.Experiment) -> amago.Experiment:
+def make_experiment_learn_only(experiment: learning.Experiment) -> learning.Experiment:
     """
     Modify the experiment to run in learn-only mode.
 
@@ -470,7 +470,7 @@ def make_experiment_learn_only(experiment: amago.Experiment) -> amago.Experiment
     return experiment
 
 
-def make_experiment_collect_only(experiment: amago.Experiment) -> amago.Experiment:
+def make_experiment_collect_only(experiment: learning.Experiment) -> learning.Experiment:
     """
     Modify the experiment to run in collect-only mode.
 
@@ -494,7 +494,7 @@ def make_experiment_collect_only(experiment: amago.Experiment) -> amago.Experime
     return experiment
 
 
-def switch_async_mode(experiment: amago.Experiment, mode: str) -> amago.Experiment:
+def switch_async_mode(experiment: learning.Experiment, mode: str) -> learning.Experiment:
     """
     Switch the experiment mode between collect, learn, or both.
 

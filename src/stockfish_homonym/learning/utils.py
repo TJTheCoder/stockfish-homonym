@@ -19,12 +19,12 @@ from torch.optim.lr_scheduler import LambdaLR
 from torch.optim import AdamW
 
 
-class AmagoWarning(Warning):
+class LearningWarning(Warning):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-def amago_warning(msg: str, category=AmagoWarning):
+def learning_warning(msg: str, category=LearningWarning):
     """Print a warning message in green, usually to warn about unintuitive hparam settings at startup."""
     warnings.warn(colored(f"{msg}", "green"), category=category)
 
@@ -63,7 +63,7 @@ class AdamWRel(AdamW):
             amsgrad=amsgrad,
         )
         self.reset_interval = int(reset_interval)
-        amago_warning(
+        learning_warning(
             f"Using AdamW with non-stationary timestep resets every {self.reset_interval} steps."
         )
         self.global_step = 0
@@ -245,7 +245,7 @@ def retry_load_checkpoint(ckpt_path, map_location, tries: int = 10):
         ckpt: torch.load() result. None if load failed.
     """
     if not os.path.exists(ckpt_path):
-        amago_warning("Skipping checkpoint load; file not found.")
+        learning_warning("Skipping checkpoint load; file not found.")
         return
 
     ckpt, attempts = None, 0
@@ -254,7 +254,7 @@ def retry_load_checkpoint(ckpt_path, map_location, tries: int = 10):
         try:
             ckpt = torch.load(ckpt_path, map_location=map_location)
         except Exception as e:
-            amago_warning(
+            learning_warning(
                 f"Error loading checkpoint. {'Retrying...' if attempts < tries else 'Failed'}"
             )
             time.sleep(1)

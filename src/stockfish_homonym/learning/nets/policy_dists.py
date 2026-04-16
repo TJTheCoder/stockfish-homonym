@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from torch import distributions as pyd
 from einops import rearrange
 
-from amago.nets.utils import add_activation_log
+from stockfish_homonym.learning.nets.utils import add_activation_log
 
 
 class _TanhWrappedDistribution(pyd.Distribution):

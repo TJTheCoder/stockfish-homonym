@@ -9,10 +9,10 @@ import yaml
 
 from stockfish_homonym.env.platform_execution_env import PlatformEnvConfig, PlatformExecutionEnv
 
-import amago
-from amago import cli_utils
-from amago.envs import AMAGOEnv
-from amago.loading import DiskTrajDataset
+import stockfish_homonym.learning as learning
+from stockfish_homonym.learning import cli_utils
+from stockfish_homonym.learning.envs import SequenceEnv
+from stockfish_homonym.learning.loading import DiskTrajDataset
 
 
 ENV_NAME = "cpp_stock_platform_execution"
@@ -23,8 +23,8 @@ def load_config(path: str | Path) -> dict[str, Any]:
         return yaml.safe_load(handle)
 
 
-def make_env(env_config: PlatformEnvConfig, seed: int = 0) -> AMAGOEnv:
-    return AMAGOEnv(
+def make_env(env_config: PlatformEnvConfig, seed: int = 0) -> SequenceEnv:
+    return SequenceEnv(
         PlatformExecutionEnv(seed=seed, config=env_config),
         env_name=ENV_NAME,
     )
@@ -42,7 +42,7 @@ def build_experiment(
     traj_encoder: str | None = None,
     memory_size: int | None = None,
     memory_layers: int | None = None,
-) -> amago.Experiment:
+) -> learning.Experiment:
     env_cfg = PlatformEnvConfig(**cfg["env"])
     train_cfg = cfg["training"]
     model_cfg = cfg["model"]
@@ -88,7 +88,7 @@ def build_experiment(
     make_train_env = partial(make_env, env_cfg)
     make_eval_env = partial(make_env, replace(env_cfg, calm_only_episodes=0))
 
-    experiment = amago.Experiment(
+    experiment = learning.Experiment(
         run_name=run_name,
         ckpt_base_dir=buffer_dir,
         max_seq_len=train_cfg["max_seq_len"],

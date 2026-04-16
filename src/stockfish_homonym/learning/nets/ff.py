@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from amago.nets.utils import activation_switch
+from stockfish_homonym.learning.nets.utils import activation_switch
 
 
 class Normalization(nn.Module):
@@ -147,7 +147,7 @@ class MLP(nn.Module):
         d_hidden: Dimension of the hidden layer.
         n_layers: Number of non-output layers (including the input layer)
         d_output: Dimension of the output.
-        activation: Activation function. See `amago.nets.utils.activation_switch`
+        activation: Activation function. See `stockfish_homonym.learning.nets.utils.activation_switch`
             for options. Default is "leaky_relu".
         normalization: Normalization method for hidden layers. See `Normalization`
             for options. Default is None (no normalization).

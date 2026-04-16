@@ -43,18 +43,18 @@ from .nets import TstepEncoder, TrajEncoder
 @dataclass
 class Experiment:
     """
-    Build, train, and evaluate an :py:class:`~amago.agent.Agent`.
+    Build, train, and evaluate an :py:class:`~stockfish_homonym.learning.agent.Agent`.
 
     .. rubric:: Required
 
     :param run_name: Name of the experiment. Used to create checkpoint and log directories.
     :param ckpt_base_dir: Base directory to store checkpoints and logs. Checkpoints are saved to ``ckpt_base_dir/run_name``.
     :param max_seq_len: Maximum sequence length for training. Determines effective batch size (Batch Size × Sequence Length).
-    :param dataset: :py:class:`~amago.loading.RLDataset` for loading training sequences.
-    :param tstep_encoder_type: a type of :py:class:`~amago.nets.tstep_encoders.TstepEncoder` (will be created with default kwargs --- edit via gin).
-    :param traj_encoder_type: a type of :py:class:`~amago.nets.traj_encoders.TrajEncoder` (will be created with default kwargs --- edit via gin).
-    :param agent_type: a type of :py:class:`~amago.agent.BaseAgent` (will be created with default kwargs --- edit via gin).
-    :param make_train_env: Callable returning an :py:class:`~amago.envs.amago_env.AMAGOEnv`. If not a list, repeated ``parallel_actors`` times. List gives manual assignment across actors.
+    :param dataset: :py:class:`~stockfish_homonym.learning.loading.RLDataset` for loading training sequences.
+    :param tstep_encoder_type: a type of :py:class:`~stockfish_homonym.learning.nets.tstep_encoders.TstepEncoder` (will be created with default kwargs --- edit via gin).
+    :param traj_encoder_type: a type of :py:class:`~stockfish_homonym.learning.nets.traj_encoders.TrajEncoder` (will be created with default kwargs --- edit via gin).
+    :param agent_type: a type of :py:class:`~stockfish_homonym.learning.agent.BaseAgent` (will be created with default kwargs --- edit via gin).
+    :param make_train_env: Callable returning an :py:class:`~stockfish_homonym.learning.envs.amago_env.AMAGOEnv`. If not a list, repeated ``parallel_actors`` times. List gives manual assignment across actors.
     :param make_val_env: Like ``make_train_env``, but only used for evaluation (trajectories never saved).
     :param val_timesteps_per_epoch: Number of steps per parallel environment for evaluation. Determines metric sample size. Should be enough time for at least one episode to finish per actor.
 
@@ -83,7 +83,7 @@ class Experiment:
     .. note::
 
         The parameters below are only relevant when doing online data collection. They determine
-        how parallel environments write finished trajectories to disk. The :py:class:`~amago.loading.DiskTrajDataset`
+        how parallel environments write finished trajectories to disk. The :py:class:`~stockfish_homonym.learning.loading.DiskTrajDataset`
         reads these files for training.
 
     :param traj_save_len: Save trajectory on episode end or after this many steps (whichever comes first). Larger values save whole trajectories. **Default:** large value.
@@ -143,8 +143,8 @@ class Experiment:
     ## Logging ##
     #############
     log_to_wandb: bool = False
-    wandb_project: str = os.environ.get("AMAGO_WANDB_PROJECT")
-    wandb_entity: str = os.environ.get("AMAGO_WANDB_ENTITY")
+    wandb_project: str = os.environ.get("STOCKFISH_WANDB_PROJECT") or os.environ.get("AMAGO_WANDB_PROJECT")
+    wandb_entity: str = os.environ.get("STOCKFISH_WANDB_ENTITY") or os.environ.get("AMAGO_WANDB_ENTITY")
     wandb_group_name: str = None
     verbose: bool = True
     log_interval: int = 300
@@ -202,7 +202,7 @@ class Experiment:
         self.init_dsets()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            warnings.filterwarnings("always", category=utils.AmagoWarning)
+            warnings.filterwarnings("always", category=utils.LearningWarning)
             env_summary = self.init_envs()
         self.init_dloaders()
         self.init_model()
@@ -231,7 +231,7 @@ class Experiment:
         )
         dset_str = "\n\t\t\t".join(self.dataset.get_description().split("\n"))
         self.accelerator.print(
-            f"""\n\n \t\t {colored('AMAGO v3.1', 'green')}
+            f"""\n\n \t\t {colored('Stockfish Homonym RL', 'green')}
             \t -------------------------
             \t Agent: {self.policy.__class__.__name__}
             \t\t Max Sequence Length: {self.max_seq_len}
@@ -267,11 +267,11 @@ class Experiment:
             make_val_envs = to_env_list(self.make_val_env)
             make_train_envs = to_env_list(self.make_train_env)
             if not len(make_train_envs) == self.parallel_actors:
-                utils.amago_warning(
+                utils.learning_warning(
                     f"`Experiment.parallel_actors` is {self.parallel_actors} but `make_train_env` is a list of length {len(make_train_envs)}"
                 )
             if not len(make_val_envs) == self.parallel_actors:
-                utils.amago_warning(
+                utils.learning_warning(
                     f"`Experiment.parallel_actors` is {self.parallel_actors} but `make_val_env` is a list of length {len(make_val_envs)}"
                 )
             if self.env_mode == "async":
@@ -294,7 +294,7 @@ class Experiment:
         if self.exploration_wrapper_type is not None and not issubclass(
             self.exploration_wrapper_type, ExplorationWrapper
         ):
-            utils.amago_warning(
+            utils.learning_warning(
                 f"Implement exploration strategies by subclassing `ExplorationWrapper` and setting the `Experiment.exploration_wrapper_type`"
             )
 
@@ -431,7 +431,7 @@ class Experiment:
             self.accelerator.print("Loading latest policy....")
             self.policy.load_state_dict(ckpt)
         else:
-            utils.amago_warning("Latest policy checkpoint was not loaded.")
+            utils.learning_warning("Latest policy checkpoint was not loaded.")
 
     def delete_buffer_from_disk(self) -> None:
         """Clear the replay buffer from disk (mainly for `examples/`).
@@ -935,7 +935,7 @@ class Experiment:
             self.log(dset_log, key="dataset")
             self.init_dloaders()
             if not self.dataset.ready_for_training:
-                utils.amago_warning(
+                utils.learning_warning(
                     f"Skipping training on epoch {epoch} because `dataset.ready_for_training` is False"
                 )
                 continue
