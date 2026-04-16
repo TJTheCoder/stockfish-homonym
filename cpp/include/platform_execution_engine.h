@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../../stock-trading-platform/server/include/market.h"
+#include "market.h"
 
 namespace stockfish_homonym {
 

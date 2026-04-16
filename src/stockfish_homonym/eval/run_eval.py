@@ -11,9 +11,6 @@ from stockfish_homonym.baselines.twap import PlatformTwapAgent
 from stockfish_homonym.env.platform_execution_env import PlatformEnvConfig, PlatformExecutionEnv
 from stockfish_homonym.eval.evaluator import EvalMetrics, Evaluator
 from stockfish_homonym.train.common import build_experiment, load_config
-from stockfish_homonym.utils.repo_paths import ensure_amago_on_path
-
-ensure_amago_on_path()
 
 from amago.envs import AMAGOEnv, SequenceWrapper
 

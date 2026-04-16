@@ -5,11 +5,20 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "stockfish-homonym"
 version = "0.1.0"
-description = "AMAGO-based RL agent for the stock-trading-platform sister repo"
+description = "Recurrent RL agent and C++ market simulator for stock execution"
 requires-python = ">=3.10"
 dependencies = [
+  "cmake>=3.16",
   "gymnasium>=0.26,<=0.29.1",
+  "torch>=2.5,<3",
   "numpy>=1.21,<3",
+  "gin-config",
+  "wandb",
+  "einops",
+  "tqdm",
+  "gym",
+  "accelerate>=1.0",
+  "termcolor",
   "pyyaml>=6.0",
 ]
 

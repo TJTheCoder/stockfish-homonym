@@ -6,5 +6,4 @@ dependencies:
   - cmake
   - pip
   - pip:
-      - -e ../amago
       - -e .

@@ -8,9 +8,6 @@ from typing import Any
 import yaml
 
 from stockfish_homonym.env.platform_execution_env import PlatformEnvConfig, PlatformExecutionEnv
-from stockfish_homonym.utils.repo_paths import ensure_amago_on_path
-
-ensure_amago_on_path()
 
 import amago
 from amago import cli_utils

@@ -4,15 +4,15 @@ This codebase trains and evaluates a recurrent reinforcement learning agent for 
 
 ## Setup And Run
 
-Create a Python 3.10 environment with CMake available, activate it, and install the package:
+Create a Python 3.10 environment, activate it, and install the package:
 
 ```bash
-conda create -n stockfish-homonym python=3.10 cmake
+conda create -n stockfish-homonym python=3.10
 conda activate stockfish-homonym
 pip install -e .
 ```
 
-The C++ bridge is built automatically the first time you run training. Start a run with:
+That install pulls in the Python training stack and CMake. You still need a working C++ compiler on the machine. The bridge is built automatically the first time you run training. Start a run with:
 
 ```bash
 stockfish-train
