@@ -1,10 +1,10 @@
 #ifndef MARKET_H
 #define MARKET_H
 
-#include "utils.h"
-#include "stock.h"
-#include "orderbook.h"
-#include "trader.h"
+#include "market/orderbook.h"
+#include "market/stock.h"
+#include "market/trader.h"
+#include "market/utils.h"
 
 using namespace std;
 

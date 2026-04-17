@@ -26,5 +26,10 @@ dependencies = [
 stockfish-train = "stockfish_homonym.train.train_policy:main"
 stockfish-eval = "stockfish_homonym.eval.run_eval:main"
 
+[tool.setuptools.package-data]
+stockfish_homonym = ["configs/*.yaml"]
+
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
+include = ["stockfish_homonym*"]
+exclude = ["tests*"]

@@ -2,6 +2,15 @@
 
 This codebase trains and evaluates a recurrent reinforcement learning agent for stock execution. A C++ simulator handles the market side, Python wraps it as a `gymnasium` environment, and the training code learns a policy and compares it against a TWAP baseline.
 
+## Project Layout
+
+The repository is organized around the two main runtime pieces:
+
+- `stockfish_homonym/`: Python package for training, evaluation, the gymnasium environment, and the bridge client.
+- `cpp/include` and `cpp/src`: C++ bridge and market simulator sources.
+- `tests/`: lightweight integration tests for the bridge, environment, and evaluator.
+- `artifacts/`: generated checkpoints and replay buffers from training runs.
+
 ## Setup And Run
 
 Create a Python 3.10 environment, activate it, and install the package:

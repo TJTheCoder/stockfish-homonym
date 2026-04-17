@@ -1,4 +1,4 @@
-#include "trader.h"
+#include "market/trader.h"
 
 Trader::Trader () :
     Trader(0.0)

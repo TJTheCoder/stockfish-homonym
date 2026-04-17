@@ -1,8 +1,8 @@
 #ifndef ORDERBOOK_H
 #define ORDERBOOK_H
 
-#include "utils.h"
-#include "order.h"
+#include "market/order.h"
+#include "market/utils.h"
 
 using namespace std;
 class Market;

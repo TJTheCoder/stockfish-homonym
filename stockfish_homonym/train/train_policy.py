@@ -7,6 +7,7 @@ from stockfish_homonym.train.common import (
     build_experiment,
     load_config,
 )
+from stockfish_homonym.utils.repo_paths import DEFAULT_CONFIG
 
 
 def parse_args() -> argparse.Namespace:
@@ -14,7 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=str,
-        default="src/stockfish_homonym/configs/default.yaml",
+        default=str(DEFAULT_CONFIG),
     )
     parser.add_argument("--run-name", type=str, default=None)
     parser.add_argument("--buffer-dir", type=str, default=None)
