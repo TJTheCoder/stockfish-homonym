@@ -4,15 +4,19 @@ from dataclasses import replace
 from functools import partial
 from pathlib import Path
 from typing import Any
+import os
+
+import numpy as np
 
 import yaml
 
 from stockfish_homonym.env.platform_execution_env import PlatformEnvConfig, PlatformExecutionEnv
+from stockfish_homonym.baselines.twap import PlatformTwapAgent
 
 import stockfish_homonym.learning as learning
 from stockfish_homonym.learning import cli_utils
-from stockfish_homonym.learning.envs import SequenceEnv
-from stockfish_homonym.learning.loading import DiskTrajDataset
+from stockfish_homonym.learning.envs import SequenceEnv, SequenceWrapper
+from stockfish_homonym.learning.loading import DiskTrajDataset, get_path_to_trajs
 
 
 ENV_NAME = "cpp_stock_platform_execution"
@@ -28,6 +32,49 @@ def make_env(env_config: PlatformEnvConfig, seed: int = 0) -> SequenceEnv:
         PlatformExecutionEnv(seed=seed, config=env_config),
         env_name=ENV_NAME,
     )
+
+
+def bootstrap_twap_buffer(
+    cfg: dict[str, Any],
+    *,
+    run_name: str,
+    buffer_dir: str,
+    episodes: int,
+    seed_offset: int = 0,
+) -> int:
+    """Populate the protected replay buffer with TWAP demonstrations once."""
+    if episodes <= 0:
+        return 0
+
+    protected_dir = get_path_to_trajs(buffer_dir, run_name, fifo=False)
+    os.makedirs(protected_dir, exist_ok=True)
+    existing = [
+        name
+        for name in os.listdir(protected_dir)
+        if name.endswith(".npz") or name.endswith(".traj")
+    ]
+    if existing:
+        return 0
+
+    env_cfg = PlatformEnvConfig(**cfg["env"])
+    twap = PlatformTwapAgent(env_cfg.target_inventory, env_cfg.horizon)
+    for episode in range(episodes):
+        seed = seed_offset + episode
+        env = SequenceWrapper(
+            make_env(replace(env_cfg, calm_only_episodes=0), seed=seed),
+            save_trajs_to=protected_dir,
+        )
+        obs, _ = env.reset(seed=seed)
+        done = False
+        while not done:
+            action = twap.act(obs["observation"][0])
+            obs, _, terminated, truncated, _ = env.step(
+                np.array([action], dtype=np.uint8)
+            )
+            done = bool(terminated[0] or truncated[0])
+        env.save_finished_trajs()
+        env.close()
+    return episodes
 
 
 def build_experiment(
@@ -76,6 +123,7 @@ def build_experiment(
         "agent",
         tau=model_cfg["agent"]["tau"],
         reward_multiplier=model_cfg["agent"]["reward_multiplier"],
+        twap_bc_coeff=model_cfg["agent"].get("twap_bc_coeff", 0.0),
     )
     cli_utils.use_config(gin_config)
 

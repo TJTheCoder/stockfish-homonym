@@ -22,6 +22,7 @@ from stockfish_homonym.learning.nets.traj_encoders import TrajEncoder
 from stockfish_homonym.learning.nets import actor_critic
 from stockfish_homonym.learning.nets.policy_dists import DiscreteLikeContinuous
 from stockfish_homonym.learning import utils
+from stockfish_homonym.baselines.twap import platform_twap_actions_torch
 
 
 ########################
@@ -609,6 +610,7 @@ class Agent(BaseAgent):
         num_critics_td: int = 2,
         online_coeff: float = 1.0,
         offline_coeff: float = 0.1,
+        twap_bc_coeff: float = 0.0,
         critic_loss_weight: float = 10.0,
         gamma: float = 0.999,
         reward_multiplier: float = 10.0,
@@ -641,6 +643,7 @@ class Agent(BaseAgent):
         self.fbc_filter_func = fbc_filter_func
         self.offline_coeff = offline_coeff
         self.online_coeff = online_coeff
+        self.twap_bc_coeff = twap_bc_coeff
         self.critic_loss_weight = critic_loss_weight
         self.tau = tau
         self.use_target_actor = use_target_actor
@@ -1057,6 +1060,17 @@ class Agent(BaseAgent):
             if log_step:
                 filter_stats = self._filter_stats(actor_mask, logp_a, filter_)
                 self.update_info.update(filter_stats)
+
+        if self.discrete and self.twap_bc_coeff > 0 and "observation" in batch.obs:
+            twap_actions = platform_twap_actions_torch(batch.obs["observation"])
+            twap_actions = repeat(twap_actions, "b l -> b l g", g=G)
+            twap_logp = a_dist.log_prob(twap_actions).unsqueeze(-1)[:, :-1, ...]
+            actor_loss += self.twap_bc_coeff * -twap_logp
+            if log_step:
+                self.update_info["TWAP BC Loss"] = utils.masked_avg(
+                    -twap_logp,
+                    actor_mask[:, :-1, ...],
+                )
 
         # fmt: on
         return self._compute_loss(

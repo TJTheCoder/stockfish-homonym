@@ -211,6 +211,19 @@ class Experiment:
         if self.verbose:
             self.summary(env_summary=env_summary)
 
+    def close(self) -> None:
+        """Release environments and trackers created during the experiment lifecycle."""
+        for attr in ("train_envs", "val_envs"):
+            envs = getattr(self, attr, None)
+            if envs is None:
+                continue
+            try:
+                envs.close()
+            finally:
+                setattr(self, attr, None)
+        if hasattr(self.accelerator, "end_training"):
+            self.accelerator.end_training()
+
     @property
     def DEVICE(self):
         """Return the device (cpu/gpu) that the experiment is running on."""
@@ -730,21 +743,23 @@ class Experiment:
             elif self.env_mode == "sync":
                 Par = DummyAsyncVectorEnv
         test_envs = Par(env_list, **par_kwargs)
-        test_envs.reset()
-        _, (returns, specials) = self.interact(
-            test_envs,
-            timesteps,
-            hidden_state=None,
-            render=render,
-            # saves trajectories as soon as they're finished instead of waiting until the end of eval
-            save_on_done=is_saving,
-            episodes=episodes,
-            sample=self.sample_actions_val,
-        )
-        logs = self.policy_metrics(returns, specials)
-        logs_global = utils.avg_over_accelerate(logs)
-        self.log(logs_global, key="test")
-        test_envs.close()
+        try:
+            test_envs.reset()
+            _, (returns, specials) = self.interact(
+                test_envs,
+                timesteps,
+                hidden_state=None,
+                render=render,
+                # saves trajectories as soon as they're finished instead of waiting until the end of eval
+                save_on_done=is_saving,
+                episodes=episodes,
+                sample=self.sample_actions_val,
+            )
+            logs = self.policy_metrics(returns, specials)
+            logs_global = utils.avg_over_accelerate(logs)
+            self.log(logs_global, key="test")
+        finally:
+            test_envs.close()
         if self.verbose:
             cur_return = logs_global["Average Total Return (Across All Env Names)"]
             self.accelerator.print(f"Test Average Return : {cur_return}")

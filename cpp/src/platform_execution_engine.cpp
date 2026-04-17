@@ -379,7 +379,11 @@ StepResult PlatformExecutionEngine::step(int action) {
         reward -= (price_before_move - arrival_price_) * filled;
     }
     const double inv_frac = static_cast<double>(inventory_remaining_) / config_.target_inventory;
+    const double time_remaining =
+        static_cast<double>(config_.horizon - step_count_) / std::max(1, config_.horizon);
+    const double behind_schedule_frac = std::max(0.0, inv_frac - time_remaining);
     reward -= config_.lambda_risk * inv_frac * inv_frac * spec.risk_scale;
+    reward -= config_.lambda_urgency * behind_schedule_frac * spec.terminal_scale;
 
     bool terminated = inventory_remaining_ <= 0;
     bool truncated = step_count_ >= config_.horizon && !terminated;
@@ -389,7 +393,7 @@ StepResult PlatformExecutionEngine::step(int action) {
         const double terminal_penalty =
             config_.lambda_urgency
             * spec.terminal_scale
-            * inv_frac
+            * inventory_remaining_
             * clip(current_price() / arrival_price_, 0.5, 2.0);
         reward -= terminal_penalty;
     }

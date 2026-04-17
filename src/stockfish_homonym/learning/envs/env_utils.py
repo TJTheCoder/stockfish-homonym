@@ -56,6 +56,11 @@ class AlreadyVectorizedEnv(gym.Env):
         obs = np.stack(obs, axis=0)
         return obs, rewards, te, tr, info
 
+    def close(self):
+        if getattr(self, "env", None) is not None:
+            self.env.close()
+            self.env = None
+
 
 class DummyAsyncVectorEnv(gym.Env):
     """Imitates Async calls of synchronous parallel environments."""
@@ -102,6 +107,11 @@ class DummyAsyncVectorEnv(gym.Env):
         states = np.stack(states, axis=0)
 
         return states, rewards, te, tr, info
+
+    def close(self):
+        for env in getattr(self, "envs", []):
+            env.close()
+        self.envs = []
 
 
 def space_convert(gym_space):

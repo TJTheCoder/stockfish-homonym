@@ -139,34 +139,37 @@ def main() -> None:
         parallel_actors=1,
         env_mode="sync",
     )
-    experiment.start()
-    checkpoint_path = Path(args.checkpoint)
-    experiment.load_checkpoint_from_path(str(checkpoint_path), is_accelerate_state=False)
+    try:
+        experiment.start()
+        checkpoint_path = Path(args.checkpoint)
+        experiment.load_checkpoint_from_path(str(checkpoint_path), is_accelerate_state=False)
 
-    env_cfg = PlatformEnvConfig(**cfg["env"])
-    env_factory = lambda seed: PlatformExecutionEnv(
-        seed=seed,
-        config=replace(env_cfg, calm_only_episodes=0),
-    )
-    twap_metrics = Evaluator(
-        env_factory=env_factory,
-        n_episodes=episodes,
-        seed_offset=seed_offset,
-    ).evaluate(PlatformTwapAgent(env_cfg.target_inventory, env_cfg.horizon))
-    policy_metrics = evaluate_policy(
-        experiment=experiment,
-        env_config=env_cfg,
-        episodes=episodes,
-        seed_offset=seed_offset,
-    )
+        env_cfg = PlatformEnvConfig(**cfg["env"])
+        env_factory = lambda seed: PlatformExecutionEnv(
+            seed=seed,
+            config=replace(env_cfg, calm_only_episodes=0),
+        )
+        twap_metrics = Evaluator(
+            env_factory=env_factory,
+            n_episodes=episodes,
+            seed_offset=seed_offset,
+        ).evaluate(PlatformTwapAgent(env_cfg.target_inventory, env_cfg.horizon))
+        policy_metrics = evaluate_policy(
+            experiment=experiment,
+            env_config=env_cfg,
+            episodes=episodes,
+            seed_offset=seed_offset,
+        )
 
-    print(format_metrics("Learned policy", policy_metrics))
-    print()
-    print(format_metrics("TWAP baseline", twap_metrics))
-    print()
-    delta = twap_metrics.shortfall_mean - policy_metrics.shortfall_mean
-    verdict = "better" if delta > 0 else "worse"
-    print(f"Policy vs TWAP: {delta:+.4f} ({verdict} than TWAP)")
+        print(format_metrics("Learned policy", policy_metrics))
+        print()
+        print(format_metrics("TWAP baseline", twap_metrics))
+        print()
+        delta = twap_metrics.shortfall_mean - policy_metrics.shortfall_mean
+        verdict = "better" if delta > 0 else "worse"
+        print(f"Policy vs TWAP: {delta:+.4f} ({verdict} than TWAP)")
+    finally:
+        experiment.close()
 
 
 if __name__ == "__main__":
